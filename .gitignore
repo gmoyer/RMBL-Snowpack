@@ -1,3 +1,5 @@
 Expected/
 Input/
 .venv/
+complex_model.txt
+*.pth
