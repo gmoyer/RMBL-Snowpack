@@ -3,3 +3,6 @@ Input/
 .venv/
 complex_model.txt
 *.pth
+*.png
+__pycache__/
+Validation/
