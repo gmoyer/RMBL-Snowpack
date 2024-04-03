@@ -51,12 +51,12 @@ def preprocess_data(features, labels):
         transforms.Resize((FEATURE_IMAGE_SIZE, FEATURE_IMAGE_SIZE)),
         transforms.Lambda(lambda x: x.convert("RGB") if x.mode != "RGB" else x),
         transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.2, 0.2, 0.2))
+        transforms.Normalize((0.5, 0.5, 0.5), (0.3, 0.3, 0.3))
     ])
+
     transform_label = transforms.Compose([
         transforms.Resize((LABEL_IMAGE_SIZE, LABEL_IMAGE_SIZE)),
-        transforms.ToTensor(),
-        transforms.Lambda(lambda x: (x>0.5).float()),
+        transforms.ToTensor()
     ])
 
     def prepare_feature(img):
