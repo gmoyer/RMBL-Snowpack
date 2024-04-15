@@ -1,10 +1,9 @@
 import time
 import torch
 from torch.utils.data import TensorDataset, DataLoader
-from model import Model
+from model1 import Model1
 
 from preprocess import load_data, preprocess_data
-
 # Load the data
 
 features, labels = load_data("Input", "Expected")
@@ -21,19 +20,20 @@ training_data_loader = DataLoader(training_data_set,
 
 
 # Define the CNN
-model = Model()
+model = Model1()
 # Define other parameters
 
-def loss_function(prediction, label):
-    mask = label >= 0
-    out = (prediction[mask]-label[mask])**2
-    return out.mean()
+bce_loss = torch.nn.BCELoss()
 
-optimizer = torch.optim.Adam(model.parameters())
+def loss_function(prediction, label):
+    mask = label != -1
+    return bce_loss(prediction[mask], label[mask])
+
+optimizer = torch.optim.SGD(model.parameters(), lr=0.0001)
 
 # Train the CNN
 print("Training the CNN...")
-num_epochs = 150
+num_epochs = 50
 total_num_batches = len(training_data_loader)
 
 for epoch in range(num_epochs):
@@ -54,6 +54,6 @@ for epoch in range(num_epochs):
 print("Training complete. Saving the model...")
 
 # Save the model
-torch.save(model.state_dict(), "model2.pth")
+torch.save(model.state_dict(), "model1.pth")
 
 print("Model saved.")
