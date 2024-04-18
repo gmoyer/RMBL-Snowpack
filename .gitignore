@@ -1,6 +1,8 @@
 Expected/
 Input/
 .venv/
+Clips/
+Clipped-Input/
 complex_model.txt
 *.pth
 *.png

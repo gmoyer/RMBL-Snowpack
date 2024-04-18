@@ -3,6 +3,7 @@ import torch
 from torch.utils.data import TensorDataset, DataLoader
 from model1 import Model1
 from model2 import Model2
+from model3 import Model3
 import torchvision
 import preprocess
 import matplotlib.pyplot as plt
@@ -11,7 +12,7 @@ from preprocess import load_data, preprocess_data
 
 # Load the data
 
-features, labels = load_data("Input", "Expected")
+features, labels = load_data("Clipped-Input", "Expected")
 
 # Preprocess the data
 
@@ -62,15 +63,15 @@ def verify_model(model):
 
 # Verify Model1
 # Load the saved model
-model1 = Model1()
-model1.load_state_dict(torch.load("model1.pth"))
-model1.eval()
+model = Model3()
+model.load_state_dict(torch.load("model3.pth"))
+model.eval()
 
 # model2 = Model2()
 # model2.load_state_dict(torch.load("model2.2.pth"))
 # model2.eval()
 
-accuracies = verify_model(model1)
+accuracies = verify_model(model)
 # # accuracies2 = verify_model(model2)
 # # accuracies = [accuracies1, accuracies2]
 # # labels = ['Model 1', 'Model 2']

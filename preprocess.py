@@ -62,11 +62,13 @@ def preprocess_data(features, labels):
 
     def prepare_feature(img):
         image = Image.open(img)
+        # print(img, "Feature", image.width, image.height, image.width/image.height)
         image = transform_feature(image)
         return image
     
     def prepare_label(img):
         image = Image.open(img)
+        # print(img, "Label", image.width, image.height, image.width/image.height)
         image = transform_label(image)
         image[image < 0] = -1
         image[torch.logical_and(image >= 0, image < 0.5)] = 0
@@ -87,7 +89,7 @@ def preprocess_data(features, labels):
 # Exploratory Data Analysis
 
 # features, labels = load_data("Input", "Expected")
-# features, labels = preprocess_data(features, labels)
+# features, labels = preprocess_data(features[0:5], labels[0:5])
 
 # means = []
 # stds = []
