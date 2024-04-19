@@ -16,49 +16,46 @@ features, labels = load_data("Clipped-Input", "Expected")
 
 # Preprocess the data
 
-features, labels = preprocess_data(features[:5], labels[:5])
+features, labels = preprocess_data(features[:3], labels[:3])
 
 # Display the label mask as gray
 labels[labels < 0] = 0.5
 
-num_validation_samples = features.shape[0]
+# num_validation_samples = features.shape[0]
 
-features = features.reshape([num_validation_samples, 3, preprocess.FEATURE_IMAGE_SIZE, preprocess.FEATURE_IMAGE_SIZE])
+# features = features.reshape([num_validation_samples, 3, preprocess.FEATURE_IMAGE_SIZE, preprocess.FEATURE_IMAGE_SIZE])
+
+verification_data_set = TensorDataset(features, labels)
+verification_data_loader = DataLoader(verification_data_set, 
+                                      batch_size=1, 
+                                      shuffle=False)
 
 
 def verify_model(model):
-    # Run the model on the input data
-
-    predictions = model(features)
-
-    # Convert predictions to binary values
-    binary_predictions = (predictions > 0.5).float()
-
     accuracies = []
+    # Run the model on the input data
+    for i, (feature, label) in enumerate(verification_data_loader):
+        prediction = model(feature)
 
-    for i in range(predictions.shape[0]):
-        prediction = binary_predictions[i]
-        label = labels[i]
-        feature = features[i]
-
-        # print(f"Label min: {label.min()}, max: {label.max()}")
-        # print(f"Prediction min: {prediction.min()}, max: {prediction.max()}")
+        # Convert predictions to binary values
+        binary_prediction = (prediction > 0.5).float()
 
         mask = label != 0.5
 
         # Compare prediction and label images
-        accuracy = torch.mean((prediction[mask] == label[mask]).float()) * 100
+        accuracy = torch.mean((binary_prediction[mask] == label[mask]).float()) * 100
         accuracies.append(accuracy)
-        print(f"Accuracy: {accuracy:.2f}%")
+        print(f"Image {i+1}, Accuracy: {accuracy:.2f}%")
 
-        # Save the prediction and label images
-        prediction[label == 0.5] = 0.5
-        prediction_image = prediction.view(1, preprocess.LABEL_IMAGE_SIZE, preprocess.LABEL_IMAGE_SIZE)
-        label_image = label.view(1, preprocess.LABEL_IMAGE_SIZE, preprocess.LABEL_IMAGE_SIZE)
-        feature_image = feature.view(3, preprocess.FEATURE_IMAGE_SIZE, preprocess.FEATURE_IMAGE_SIZE)
-        torchvision.utils.save_image(prediction_image, f"Validation/prediction_{i}.png")
-        torchvision.utils.save_image(label_image, f"Validation/label_{i}.png")
-        torchvision.utils.save_image(feature_image, f"Validation/feature_{i}.png")
+        # Save the first few prediction and label images
+        if i < 5:
+            binary_prediction[label == 0.5] = 0.5
+            prediction_image = binary_prediction.view(1, preprocess.LABEL_IMAGE_SIZE, preprocess.LABEL_IMAGE_SIZE)
+            label_image = label.view(1, preprocess.LABEL_IMAGE_SIZE, preprocess.LABEL_IMAGE_SIZE)
+            feature_image = feature.view(3, preprocess.FEATURE_IMAGE_SIZE, preprocess.FEATURE_IMAGE_SIZE)
+            torchvision.utils.save_image(prediction_image, f"Validation/{i}_prediction.png")
+            torchvision.utils.save_image(label_image, f"Validation/{i}_label.png")
+            torchvision.utils.save_image(feature_image, f"Validation/{i}_feature.png")
     return accuracies
 
 # Verify Model1

@@ -10,7 +10,7 @@ features, labels = load_data("Clipped-Input", "Expected")
 
 # Preprocess the data
 
-features, labels = preprocess_data(features[0:25], labels[0:25])
+features, labels = preprocess_data(features[0:75], labels[0:75])
 
 
 training_data_set = TensorDataset(features, labels)
@@ -32,7 +32,7 @@ optimizer = torch.optim.Adam(model.parameters())
 
 # Train the CNN
 print("Training the CNN...")
-num_epochs = 100
+num_epochs = 250
 total_num_batches = len(training_data_loader)
 
 for epoch in range(num_epochs):
