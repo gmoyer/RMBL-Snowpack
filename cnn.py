@@ -1,7 +1,7 @@
 import time
 import torch
 from torch.utils.data import TensorDataset, DataLoader
-from model3 import Model3
+from model1 import Model1
 
 from preprocess import load_data, preprocess_data
 # Load the data
@@ -10,7 +10,7 @@ features, labels = load_data("Clipped-Input", "Expected")
 
 # Preprocess the data
 
-features, labels = preprocess_data(features[0:75], labels[0:75])
+features, labels = preprocess_data(features[0:80], labels[0:80])
 
 
 training_data_set = TensorDataset(features, labels)
@@ -19,7 +19,7 @@ training_data_loader = DataLoader(training_data_set,
                                   shuffle=True)
 
 # Define the CNN
-model = Model3()
+model = Model1()
 # Define other parameters
 
 bce_loss = torch.nn.BCELoss()
@@ -32,7 +32,7 @@ optimizer = torch.optim.Adam(model.parameters())
 
 # Train the CNN
 print("Training the CNN...")
-num_epochs = 250
+num_epochs = 50
 total_num_batches = len(training_data_loader)
 
 for epoch in range(num_epochs):
@@ -53,6 +53,6 @@ for epoch in range(num_epochs):
 print("Training complete. Saving the model...")
 
 # Save the model
-torch.save(model.state_dict(), "model3.pth")
+torch.save(model.state_dict(), "model1.pth")
 
 print("Model saved.")

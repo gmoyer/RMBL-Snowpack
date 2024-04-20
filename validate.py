@@ -16,7 +16,9 @@ features, labels = load_data("Clipped-Input", "Expected")
 
 # Preprocess the data
 
-features, labels = preprocess_data(features[:3], labels[:3])
+features, labels = preprocess_data(features[75:80], labels[75:80])
+
+print(f"Number of features: {features.shape[0]}")
 
 # Display the label mask as gray
 labels[labels < 0] = 0.5
@@ -31,7 +33,11 @@ verification_data_loader = DataLoader(verification_data_set,
                                       shuffle=False)
 
 
-def verify_model(model):
+def verify_model(model, filename, save_images=0):
+    model.load_state_dict(torch.load(filename))
+    model.eval()
+
+
     accuracies = []
     # Run the model on the input data
     for i, (feature, label) in enumerate(verification_data_loader):
@@ -45,10 +51,10 @@ def verify_model(model):
         # Compare prediction and label images
         accuracy = torch.mean((binary_prediction[mask] == label[mask]).float()) * 100
         accuracies.append(accuracy)
-        print(f"Image {i+1}, Accuracy: {accuracy:.2f}%")
+        print(f"Image {i}, Accuracy: {accuracy:.2f}%")
 
         # Save the first few prediction and label images
-        if i < 5:
+        if i < save_images:
             binary_prediction[label == 0.5] = 0.5
             prediction_image = binary_prediction.view(1, preprocess.LABEL_IMAGE_SIZE, preprocess.LABEL_IMAGE_SIZE)
             label_image = label.view(1, preprocess.LABEL_IMAGE_SIZE, preprocess.LABEL_IMAGE_SIZE)
@@ -58,22 +64,24 @@ def verify_model(model):
             torchvision.utils.save_image(feature_image, f"Validation/{i}_feature.png")
     return accuracies
 
-# Verify Model1
-# Load the saved model
-model = Model3()
-model.load_state_dict(torch.load("model3.pth"))
-model.eval()
 
-# model2 = Model2()
-# model2.load_state_dict(torch.load("model2.2.pth"))
-# model2.eval()
 
-accuracies = verify_model(model)
-# # accuracies2 = verify_model(model2)
-# # accuracies = [accuracies1, accuracies2]
-# # labels = ['Model 1', 'Model 2']
-# # Plot a histogram of model 1 and 2 accuracies
-# plt.hist(accuracies, bins=10, histtype='bar')
+
+# Comparing models with histogram
+
+accuracies1 = verify_model(Model1(), "model1_clipped.pth")
+accuracies2 = verify_model(Model2(), "model2_clipped.pth")
+accuracies3 = verify_model(Model3(), "model3.pth", 5)
+# accuracies3 = verify_model(Model3(), "model3.pth")
+
+print(f"Model 1 Mean Accuracy: {torch.mean(torch.tensor(accuracies1)):.3f}%")
+print(f"Model 2 Mean Accuracy: {torch.mean(torch.tensor(accuracies2)):.3f}%")
+print(f"Model 3 Mean Accuracy: {torch.mean(torch.tensor(accuracies3)):.3f}%")
+
+# accuracies = [accuracies1, accuracies2]
+# labels = ['Before Clipping', 'After Clipping']
+# # # Plot a histogram of model 1 and 2 accuracies
+# plt.hist(accuracies, bins=10, histtype='bar', label=labels)
 # plt.xlabel('Accuracy')
 # plt.ylabel('Frequency')
 # plt.title('Model Accuracies')
