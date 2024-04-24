@@ -16,7 +16,7 @@ features, labels = load_data("Clipped-Input", "Expected")
 
 # Preprocess the data
 
-features, labels = preprocess_data(features[75:80], labels[75:80])
+features, labels = preprocess_data(features[75:], labels[75:])
 
 print(f"Number of features: {features.shape[0]}")
 
@@ -78,13 +78,13 @@ print(f"Model 1 Mean Accuracy: {torch.mean(torch.tensor(accuracies1)):.3f}%")
 print(f"Model 2 Mean Accuracy: {torch.mean(torch.tensor(accuracies2)):.3f}%")
 print(f"Model 3 Mean Accuracy: {torch.mean(torch.tensor(accuracies3)):.3f}%")
 
-# accuracies = [accuracies1, accuracies2]
-# labels = ['Before Clipping', 'After Clipping']
+accuracies = [accuracies1, accuracies2, accuracies3]
+labels = ['Model 1', 'Model 2', 'Model 3']
 # # # Plot a histogram of model 1 and 2 accuracies
-# plt.hist(accuracies, bins=10, histtype='bar', label=labels)
-# plt.xlabel('Accuracy')
-# plt.ylabel('Frequency')
-# plt.title('Model Accuracies')
-# plt.legend()
-# plt.show()
+plt.hist(accuracies, bins=10, histtype='bar', label=labels)
+plt.xlabel('Accuracy')
+plt.ylabel('Frequency')
+plt.title('Model Accuracies')
+plt.legend()
+plt.show()
 
