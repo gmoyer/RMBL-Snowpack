@@ -7,3 +7,4 @@ complex_model.txt
 *.png
 __pycache__/
 Validation/
+sample_input.tif
