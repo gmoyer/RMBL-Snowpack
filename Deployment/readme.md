@@ -15,7 +15,7 @@ To run the script, follow these steps:
 
 1. Place the `identifysnowpack.py` script and the `model.pth` file in the same directory.
 2. Create a separate python file and add `from identifysnowpack import identify_image`
-3. Run the function identify_image by providing a path to the input image, and specifying a path to save the output image.
+3. Run the function `identify_image` by providing a path to the input image and specifying a path to save the output image.
 
 ## Example
 
