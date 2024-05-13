@@ -1,6 +1,9 @@
-from torch import nn, load
+from torch import nn, load, from_numpy
 from torchvision import transforms
 from torchvision.utils import save_image
+import fiona
+import rasterio
+import rasterio.mask
 from PIL import Image
 
 
@@ -31,13 +34,27 @@ def Model1():
         nn.Sigmoid()
     )
 
-def preprocess_image(img):
-    image = Image.open(img)
 
-    width, height = image.size
+# From https://rasterio.readthedocs.io/en/latest/topics/masking-by-shapefile.html
+def clip_raster(raster_path, vector_path):
+    with fiona.open(vector_path, "r") as shapefile:
+        shapes = [feature["geometry"] for feature in shapefile]
+    with rasterio.open(raster_path) as src:
+        out_image, out_transform = rasterio.mask.mask(src, shapes, crop=True)
+    return out_image, out_transform
 
-    feature_width = int(FEATURE_IMAGE_HEIGHT / height * width)
-    feature_height = FEATURE_IMAGE_HEIGHT
+def preprocess_image(raster_img, raster_transform):
+    image = from_numpy(raster_img)
+    # image = image.permute(1, 2, 0)
+
+    print(image.shape)
+
+    width, height = image.shape[2], image.shape[1]
+    scale_x = abs(raster_transform[0])
+    scale_y = abs(raster_transform[4])
+
+    feature_width = int(width * scale_x * 4)
+    feature_height = int(height * scale_y * 4)
 
     transform_feature = transforms.Compose([
         transforms.Resize((feature_height, feature_width)),
@@ -54,11 +71,16 @@ def preprocess_image(img):
 model = Model1()
 model.load_state_dict(load("model.pth"))
 
-def identify_image(input_path, output_path):
+def identify_image(raster_path, vector_path, output_path):
+    # Preprocessing
+    raster_image, raster_transform = clip_raster(raster_path, vector_path)
+    feature = preprocess_image(raster_image, raster_transform)
+
     model.eval()
-    feature = preprocess_image(input_path)
     prediction = model(feature)
     binary_prediction = (prediction > 0.5).float()
     save_image(binary_prediction, output_path)
 
 
+# Testing
+identify_image("DeerCreekTrail_2019_05_11_ortho_3cm.tif", "DeerCreekTrail_Clip.gpkg", "output.png")

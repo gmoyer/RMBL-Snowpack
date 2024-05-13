@@ -5,7 +5,8 @@ Clips/
 Clipped-Input/
 complex_model.txt
 *.png
+*.tif
+*.lnk
+*.gpkg
 __pycache__/
 Validation/
-sample_input.tif
-identify-snowpack.zip
