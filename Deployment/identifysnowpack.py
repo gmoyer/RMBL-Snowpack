@@ -4,12 +4,6 @@ from torchvision.utils import save_image
 import fiona
 import rasterio
 import rasterio.mask
-from PIL import Image
-
-
-Image.MAX_IMAGE_PIXELS = None
-
-FEATURE_IMAGE_HEIGHT = 256*4
 
 def Model1():
     return nn.Sequential(
@@ -44,10 +38,11 @@ def clip_raster(raster_path, vector_path):
     return out_image, out_transform
 
 def preprocess_image(raster_img, raster_transform):
-    image = from_numpy(raster_img)
-    # image = image.permute(1, 2, 0)
+    image = from_numpy(raster_img).float()
 
-    print(image.shape)
+    # Delete the fourth color channel (alpha) if it exists
+    if image.shape[1] == 4:
+        image = image[:, :3, :, :]
 
     width, height = image.shape[2], image.shape[1]
     scale_x = abs(raster_transform[0])
@@ -58,8 +53,6 @@ def preprocess_image(raster_img, raster_transform):
 
     transform_feature = transforms.Compose([
         transforms.Resize((feature_height, feature_width)),
-        transforms.Lambda(lambda x: x.convert("RGB") if x.mode != "RGB" else x),
-        transforms.ToTensor(),
         transforms.Normalize((0.46, 0.39, 0.29), (0.16, 0.14, 0.13))
     ])
 
@@ -79,6 +72,7 @@ def identify_image(raster_path, vector_path, output_path):
     model.eval()
     prediction = model(feature)
     binary_prediction = (prediction > 0.5).float()
+    print("Saving image")
     save_image(binary_prediction, output_path)
 
 
